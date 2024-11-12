@@ -19,6 +19,13 @@ type PaymentInput = {
     date: Date;
     description?: string;
     user: UserInput;
+    category: CategoryInput;
 };
 
-export { Role, UserInput, PaymentInput };
+type CategoryInput = {
+    id?: number;
+    name: string;
+    description: string;
+};
+
+export { Role, UserInput, PaymentInput, CategoryInput };

@@ -1,6 +1,9 @@
+// Execute: npx ts-node util/seed.ts
+
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcrypt';
 import { set } from 'date-fns';
+import { connect } from 'http2';
 
 const prisma = new PrismaClient();
 
@@ -28,6 +31,20 @@ const main = async () => {
         },
     });
 
+    const category1 = await prisma.category.create({
+        data: {
+            name: 'Food',
+            description: 'All food expenses',
+        },
+    });
+
+    const category2 = await prisma.category.create({
+        data: {
+            name: 'Electronics',
+            description: 'All electronic expenses',
+        },
+    });
+
     const payment1 = await prisma.payment.create({
         data: {
             amount: 100,
@@ -38,6 +55,11 @@ const main = async () => {
                 },
             },
             description: 'Lunch',
+            category: {
+                connect: {
+                    id: category1.id,
+                },
+            },
         },
     });
 
@@ -51,6 +73,11 @@ const main = async () => {
                 },
             },
             description: 'Dinner',
+            category: {
+                connect: {
+                    id: category1.id,
+                },
+            },
         },
     });
 
@@ -63,7 +90,12 @@ const main = async () => {
                     id: UserBram.id,
                 },
             },
-            description: 'Dinner',
+            description: 'New gaming mouse',
+            category: {
+                connect: {
+                    id: category2.id,
+                },
+            },
         },
     });
 };

@@ -6,6 +6,7 @@ const getAllPayments = async (): Promise<Payment[]> => {
         const paymentsprisma = await database.payment.findMany({
             include: {
                 user: true,
+                category: true,
             },
         });
         return paymentsprisma.map((paymentPrisma) => Payment.from(paymentPrisma));

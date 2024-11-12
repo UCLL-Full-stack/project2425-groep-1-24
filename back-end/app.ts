@@ -6,6 +6,7 @@ import swaggerJSDoc from 'swagger-jsdoc';
 import swaggerUi from 'swagger-ui-express';
 import userRouter from './controller/user.router';
 import paymentRouter from './controller/payment.router';
+import categoryRouter from './controller/category.router';
 
 const app = express();
 dotenv.config();
@@ -16,6 +17,7 @@ app.use(bodyParser.json());
 
 app.use('/users', userRouter);
 app.use('/payments', paymentRouter);
+app.use('/categories', categoryRouter);
 
 app.get('/status', (req, res) => {
     res.json({ message: 'Back-end is running...' });

@@ -1,5 +1,10 @@
+import { Category } from './category';
 import { User } from './user';
-import { User as UserPrisma, Payment as PaymentPrisma } from '@prisma/client';
+import {
+    User as UserPrisma,
+    Payment as PaymentPrisma,
+    Category as CategoryPrisma,
+} from '@prisma/client';
 
 export class Payment {
     private id?: number;
@@ -7,6 +12,7 @@ export class Payment {
     private date: Date;
     private description?: string;
     private user: User;
+    private category: Category;
 
     constructor(payment: {
         id?: number;
@@ -14,6 +20,7 @@ export class Payment {
         date: Date;
         description?: string;
         user: User;
+        category: Category;
     }) {
         this.validate(payment);
 
@@ -22,6 +29,7 @@ export class Payment {
         this.date = payment.date;
         this.description = payment.description;
         this.user = payment.user;
+        this.category = payment.category;
     }
 
     static from({
@@ -30,13 +38,15 @@ export class Payment {
         date,
         description,
         user,
-    }: PaymentPrisma & { user: UserPrisma }): Payment {
+        category,
+    }: PaymentPrisma & { user: UserPrisma; category: CategoryPrisma }): Payment {
         return new Payment({
             id,
             amount,
             date,
             description,
             user: User.from(user),
+            category: Category.from(category),
         });
     }
 
