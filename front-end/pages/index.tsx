@@ -14,20 +14,17 @@ const Home: React.FC = () => {
             </Head>
             <Header />
             <main className={styles.main}>
-                <span>
-                    <Image
-                        src="/images/budgetwise-logo.png"
-                        alt="BugetWise Logo"
-                        className={styles.vercelLogo}
-                        width={70}
-                        height={70}
-                    />
-                    <h1>Welcome!</h1>
-                </span>
+                <h1>Welcome to BUDGETWISE</h1>
+                <Image
+                    src="/images/budgetwise-logo.png"
+                    alt="BudgetWise Logo"
+                    width={70}
+                    height={70}
+                />
 
                 <div className={styles.description}>
                     <p>
-                        BusgetWise is a web application made to help you control your finances.
+                        BudgetWise is a web application made to help you control your finances.
                         Users can track all their expenses by adding payments, categorize them into
                         sections like food, recreation, rent, ... . Users can add notifications for
                         when a specific category of expenses reaches a certain limit. With
