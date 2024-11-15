@@ -9,7 +9,7 @@ import {
 export class Payment {
     private id?: number;
     private amount: number;
-    private date: Date;
+    private date?: Date;
     private description?: string;
     private user: User;
     private category: Category;
@@ -17,7 +17,7 @@ export class Payment {
     constructor(payment: {
         id?: number;
         amount: number;
-        date: Date;
+        date?: Date;
         description?: string;
         user: User;
         category: Category;
@@ -58,7 +58,7 @@ export class Payment {
         return this.amount;
     }
 
-    getDate(): Date {
+    getDate(): Date | undefined {
         return this.date;
     }
 
@@ -70,13 +70,13 @@ export class Payment {
         return this.user;
     }
 
-    validate(payment: { amount: number; date: Date; description?: string; user: User }) {
+    getCategory(): Category {
+        return this.category;
+    }
+
+    validate(payment: { amount: number; description?: string; user: User }) {
         if (!payment.amount) {
             throw new Error('Amount is required');
-        }
-
-        if (!payment.date) {
-            throw new Error('Date is required');
         }
 
         if (!payment.user) {

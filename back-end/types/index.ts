@@ -1,5 +1,3 @@
-import { Payment } from '../model/payment';
-
 type Role = 'admin' | 'user';
 
 type UserInput = {
