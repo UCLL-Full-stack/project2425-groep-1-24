@@ -25,13 +25,12 @@ const userLogin = async (user: User) => {
     }
 
     const lol = response.json();
-    console.log(lol);
     return lol;
 };
 
 const getUserByEmail = async (email: string): Promise<User> => {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-    const response = await fetch(`${apiUrl}/users/fulluser?email=${email}`, {
+    const response = await fetch(`${apiUrl}/users/getUserByEmail?email=${email}`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
@@ -46,7 +45,7 @@ const getUserByEmail = async (email: string): Promise<User> => {
 
 const getUserByUsername = async (username: string): Promise<User> => {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-    const response = await fetch(`${apiUrl}/users/getByUsername?username=${username}`, {
+    const response = await fetch(`${apiUrl}/users/getUserByUsername?username=${username}`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',

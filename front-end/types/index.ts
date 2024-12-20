@@ -1,12 +1,12 @@
 export type User = {
     id?: number;
     username: string;
-    firstName: string;
-    lastName: string;
-    email: string;
+    firstName?: string;
+    lastName?: string;
+    email?: string;
     password: string;
     role?: string | undefined;
-    payments: Payment[];
+    payments?: Payment[];
 };
 
 export type Payment = {
@@ -21,5 +21,4 @@ export type Payment = {
 export type Category = {
     id?: number;
     name: string;
-    description: string;
 };
