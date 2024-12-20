@@ -100,11 +100,11 @@ const loginUser = async ({ username, password }: UserInput): Promise<string> => 
     if (!isValidPassword) {
         throw new Error('Username and/or password is incorrect.');
     }
-    return generateJwtToken(username);
+    return generateJwtToken(username, user.getRole());
 };
 
-const generateJwtToken = (email: string): string => {
-    const payload = { email };
+const generateJwtToken = (username: string, role: string): string => {
+    const payload = { username: username, role: role };
     const expiresIn = `${process.env.JWT_EXPIRES_HOURS}`;
     const options = { expiresIn, issuer: 'libremory' };
     try {

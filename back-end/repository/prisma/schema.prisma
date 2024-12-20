@@ -32,6 +32,5 @@ model Payment {
 model Category {
 	id			Int			@id @default(autoincrement())
 	name 		String		@unique
-	description	String
 	payments	Payment[]
 }

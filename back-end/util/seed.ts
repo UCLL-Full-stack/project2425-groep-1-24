@@ -3,13 +3,15 @@
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcrypt';
 import { set } from 'date-fns';
-import { connect } from 'http2';
+import { sub } from 'date-fns';
 
 const prisma = new PrismaClient();
 
 const main = async () => {
-    await prisma.user.deleteMany();
     await prisma.payment.deleteMany();
+    await prisma.user.deleteMany();
+
+    await prisma.category.deleteMany();
     const hashedPassword1 = await bcrypt.hash('bramcelis', 12);
     const hashedPassword2 = await bcrypt.hash('jefvermeiren', 12);
 
@@ -38,24 +40,33 @@ const main = async () => {
     const category1 = await prisma.category.create({
         data: {
             name: 'Food',
-            description: 'All food expenses',
         },
     });
 
     const category2 = await prisma.category.create({
         data: {
             name: 'Electronics',
-            description: 'All electronic expenses',
         },
     });
 
+    const category3 = await prisma.category.create({
+        data: {
+            name: 'Transport',
+        },
+    });
+
+    const category4 = await prisma.category.create({
+        data: {
+            name: 'Rent',
+        },
+    });
     const payment1 = await prisma.payment.create({
         data: {
-            amount: 100,
+            amount: 43,
             date: set(new Date(), { hours: 12, minutes: 0 }),
             user: {
                 connect: {
-                    id: UserBram.id,
+                    id: UserJef.id,
                 },
             },
             description: 'Lunch',
@@ -87,17 +98,71 @@ const main = async () => {
 
     const payment3 = await prisma.payment.create({
         data: {
-            amount: 200,
+            amount: 134,
             date: set(new Date(), { hours: 12, minutes: 0 }),
             user: {
                 connect: {
-                    id: UserBram.id,
+                    id: UserJef.id,
                 },
             },
             description: 'New gaming mouse',
             category: {
                 connect: {
                     id: category2.id,
+                },
+            },
+        },
+    });
+
+    const payment4 = await prisma.payment.create({
+        data: {
+            amount: 98,
+            date: sub(new Date(), { weeks: 1 }),
+            user: {
+                connect: {
+                    id: UserJef.id,
+                },
+            },
+            description: 'Train ticket',
+            category: {
+                connect: {
+                    id: category3.id,
+                },
+            },
+        },
+    });
+
+    const payment5 = await prisma.payment.create({
+        data: {
+            amount: 300,
+            date: sub(new Date(), { months: 1 }),
+            user: {
+                connect: {
+                    id: UserJef.id,
+                },
+            },
+            description: 'Monthly rent',
+            category: {
+                connect: {
+                    id: category4.id,
+                },
+            },
+        },
+    });
+
+    const payment6 = await prisma.payment.create({
+        data: {
+            amount: 234,
+            date: sub(new Date(), { years: 1 }),
+            user: {
+                connect: {
+                    id: UserJef.id,
+                },
+            },
+            description: 'Food',
+            category: {
+                connect: {
+                    id: category1.id,
                 },
             },
         },

@@ -25,12 +25,11 @@ const getCategoryByName = async (name: string): Promise<Category | null> => {
     }
 };
 
-const createCategory = async (name: string, description: string): Promise<Category> => {
+const createCategory = async (name: string): Promise<Category> => {
     try {
         const categoryPrisma = await database.category.create({
             data: {
                 name: name,
-                description: description,
             },
         });
         return Category.from(categoryPrisma);

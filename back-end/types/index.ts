@@ -23,7 +23,7 @@ type PaymentInput = {
 type CategoryInput = {
     id?: number;
     name: string;
-    description: string;
+    user: UserInput;
 };
 
 export { Role, UserInput, PaymentInput, CategoryInput };

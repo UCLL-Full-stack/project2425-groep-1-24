@@ -42,7 +42,7 @@ const createPayment = async ({
     }
     const categoryCheck = await categoryDb.getCategoryByName(category.name);
     if (!categoryCheck) {
-        await categoryService.createCategory(category.name, category.description);
+        await categoryService.createCategory(category.name);
     }
 
     const userPrisma = await userService.getUserByUsername(user.username);
