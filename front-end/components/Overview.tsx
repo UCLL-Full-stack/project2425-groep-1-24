@@ -45,38 +45,26 @@ const Overview: React.FC = () => {
 
     useEffect(() => {
         const fetchData = async () => {
-            // Function to read a specific cookie by name
-            const getCookie = (name: string) => {
-                const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
-                return match ? decodeURIComponent(match[2]) : null;
-            };
+            try {
+                const user = await UserService.getLoggedInUser(); // makes backend call with cookie
 
-            const token = getCookie('token');
-            if (!token) {
-                console.log('No token found, redirecting to login');
-                router.push('/login'); // Redirect if no token is found
-            } else {
-                try {
-                    const decodedToken = jwtDecode<CustomJwtPayload>(token);
-                    const username = decodedToken.username;
-                    const role = decodedToken.role;
-                    if (username) {
-                        const user = await UserService.getUserByUsername(username);
-                        if (user) {
-                            setUserId(user.id);
-                        }
-                    }
+                if (user?.username) {
+                    setLoggedInUser(user.username);
+                    setUserRole(user.role);
 
-                    setUserRole(role); // Set the role in the state variable
-                    if (username && token) {
-                        setLoggedInUser(username);
-                    } else {
-                        setLoggedInUser(null);
+                    const fullUser = await UserService.getUserByUsername(user.username);
+                    if (fullUser?.id) {
+                        setUserId(fullUser.id);
                     }
-                } catch (error) {
-                    console.error('Invalid token:', error);
-                    router.push('/login'); // Redirect if token is invalid
+                } else {
+                    // No user returned – possibly not authenticated
+                    setLoggedInUser(null);
+                    router.push('/login');
                 }
+            } catch (error) {
+                console.error('Failed to fetch logged-in user:', error);
+                setLoggedInUser(null);
+                router.push('/login');
             }
         };
 

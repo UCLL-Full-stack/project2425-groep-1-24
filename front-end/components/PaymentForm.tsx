@@ -6,7 +6,7 @@ import { useRouter } from 'next/router';
 import UserService from '@services/UserService';
 import PaymentService from '@services/PaymentService';
 import AddPayment from 'pages/addPayment';
-import AddPaymentPopup from 'components/addPaymentPopup';
+import AddPaymentPopup from '@components/addCategoryPopup';
 
 interface CustomJwtPayload extends JwtPayload {
     role?: 'user' | 'admin';
@@ -39,32 +39,26 @@ const PaymentForm: React.FC = () => {
     };
 
     useEffect(() => {
-        // Function to read a specific cookie by name
-        const getCookie = (name: string) => {
-            const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
-            return match ? decodeURIComponent(match[2]) : null;
-        };
-
-        const token = getCookie('token');
-        if (!token) {
-            console.log('No token found, redirecting to login');
-            router.push('/login'); // Redirect if no token is found
-        } else {
+        const fetchData = async () => {
             try {
-                const decodedToken = jwtDecode<CustomJwtPayload>(token);
-                const username = decodedToken.username;
-                const role = decodedToken.role;
-                setUserRole(role); // Set the role in the state variable
-                if (username && token) {
-                    setLoggedInUser(username);
+                const user = await UserService.getLoggedInUser(); // makes backend call with cookie
+
+                if (user?.username) {
+                    setLoggedInUser(user.username);
+                    setUserRole(user.role);
                 } else {
+                    // No user returned – possibly not authenticated
                     setLoggedInUser(null);
+                    router.push('/login');
                 }
             } catch (error) {
-                console.error('Invalid token:', error);
-                router.push('/login'); // Redirect if token is invalid
+                console.error('Failed to fetch logged-in user:', error);
+                setLoggedInUser(null);
+                router.push('/login');
             }
-        }
+        };
+
+        fetchData();
     }, [router]);
 
     useEffect(() => {
@@ -79,11 +73,20 @@ const PaymentForm: React.FC = () => {
         }
         const user = await UserService.getUserByUsername(loggedInUser);
         const categoryObj = categories.find((c) => c.name === category);
+        if (!categoryObj) {
+            throw new Error('Invalid category');
+        }
         if (amount === undefined) {
             throw new Error('Amount is required');
         }
         if (!date) {
             throw new Error('Date is required');
+        }
+        if (typeof amount !== 'number' || amount <= 0) {
+            throw new Error('Invalid amount');
+        }
+        if (!Date.parse(date)) {
+            throw new Error('Invalid date format');
         }
         const payment = { amount, date: new Date(date), description, category: categoryObj, user };
         PaymentService.addPayment(payment);
@@ -102,6 +105,12 @@ const PaymentForm: React.FC = () => {
         const updatedCategories = await categoryService.getAll();
         setCategories(updatedCategories);
         setShowAddPaymentPopup(false);
+    };
+
+    const validateDescription = (input: string) => {
+        // Allow basic punctuation and alphanumeric characters
+        const regex = /^[a-zA-Z0-9 .,!?'-]{0,200}$/;
+        return regex.test(input);
     };
     return (
         <form className={styles.form} onSubmit={handleSubmit}>
@@ -131,9 +140,15 @@ const PaymentForm: React.FC = () => {
                 <textarea
                     value={description}
                     required
-                    onChange={(e) => setDescription(e.target.value)}
+                    onChange={(e) => {
+                        const input = e.target.value;
+                        if (validateDescription(input)) {
+                            setDescription(input);
+                        }
+                    }}
                     rows={4} // Number of visible lines
                     cols={40} // Number of visible columns
+                    maxLength={200} // Maximum length of the input
                     className={styles.customtextbox} // Optional styling
                 />
             </label>

@@ -1,16 +1,28 @@
 import React, { useState } from 'react';
 import styles from '@styles/home.module.css';
 
-interface AddPaymentPopupProps {
+interface AddCategoryPopupProps {
     onCancel: () => void;
     onConfirm: (categoryName: string) => void;
 }
 
-const AddPaymentPopup: React.FC<AddPaymentPopupProps> = ({ onCancel, onConfirm }) => {
+const AddCategoryPopup: React.FC<AddCategoryPopupProps> = ({ onCancel, onConfirm }) => {
     const [categoryName, setCategoryName] = useState('');
 
+    const isValidCategoryName = (name: string): boolean => {
+        const regex = /^[a-zA-Z0-9\s\-]{1,30}$/; // allows letters, numbers, spaces, dashes; max 30 chars
+        return regex.test(name);
+    };
+
     const handleConfirm = () => {
-        onConfirm(categoryName);
+        if (!isValidCategoryName(categoryName)) {
+            alert(
+                'Invalid category name. Only letters, numbers, spaces, and dashes are allowed (max 30 characters).'
+            );
+            return;
+        }
+
+        onConfirm(categoryName.trim());
     };
 
     return (
@@ -25,6 +37,7 @@ const AddPaymentPopup: React.FC<AddPaymentPopupProps> = ({ onCancel, onConfirm }
                         onChange={(e) => setCategoryName(e.target.value)}
                         placeholder="Enter category name"
                         className={styles.input}
+                        maxLength={30}
                     />
 
                     <div className={styles.buttons}>
@@ -41,4 +54,4 @@ const AddPaymentPopup: React.FC<AddPaymentPopupProps> = ({ onCancel, onConfirm }
     );
 };
 
-export default AddPaymentPopup;
+export default AddCategoryPopup;

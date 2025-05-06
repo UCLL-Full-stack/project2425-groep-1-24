@@ -3,7 +3,48 @@ import userService from '../service/user.service';
 import { UserInput } from '../types';
 import { User } from '../model/user';
 
+import rateLimit from 'express-rate-limit';
+
+const jwtSecret = process.env.JWT_SECRET;
+
+if (!jwtSecret) {
+    throw new Error('JWT_SECRET is not defined. Please set it in your environment variables.');
+}
+import jwt, { JwtPayload } from 'jsonwebtoken';
+
+interface CustomJwtPayload extends JwtPayload {
+    username: string;
+    role: string;
+}
+
+// Rate limiter for login
+const loginLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 5, // Limit each IP to 5 login requests per windowMs
+    message: {
+        status: 'too-many-requests',
+        message: 'Too many login attempts. Please try again after 15 minutes.',
+    },
+    standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+    legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+});
+
 const userRouter = express.Router();
+
+userRouter.get('/me', (req, res) => {
+    const token = req.cookies.token;
+
+    if (!token) {
+        return res.status(401).json({ message: 'Unauthorized' });
+    }
+
+    try {
+        const decoded = jwt.verify(token, jwtSecret) as CustomJwtPayload;
+        res.json({ username: decoded.username, role: decoded.role });
+    } catch (err) {
+        res.status(401).json({ message: 'Invalid token' });
+    }
+});
 
 /**
  * @swagger
@@ -198,16 +239,32 @@ userRouter.get('/getUserByUsername', async (req: Request, res: Response, next: N
  *         description: Internal server error
  */
 
-userRouter.post('/login', async (req: Request, res: Response, next: NextFunction) => {
+userRouter.post('/login', loginLimiter, async (req: Request, res: Response, next: NextFunction) => {
     try {
         const user = <UserInput>req.body;
         const role = await userService.getUserRoleByUsername(user.username);
         const token = await userService.loginUser(user);
         const response = { token: token, role: role };
+        res.cookie('token', token, {
+            httpOnly: true,
+            secure: true, // works only over HTTPS
+            sameSite: 'strict', // prevents CSRF via cross-site
+            maxAge: 24 * 60 * 60 * 1000, // 1 day
+        });
         res.status(200).json(response);
     } catch (error) {
         next(error);
     }
+});
+
+userRouter.post('/logout', (req, res) => {
+    res.clearCookie('token', {
+        httpOnly: true,
+        secure: true,
+        sameSite: 'strict',
+        maxAge: 24 * 60 * 60 * 1000, // 1 day
+    });
+    res.json({ message: 'Logged out successfully' });
 });
 
 /**

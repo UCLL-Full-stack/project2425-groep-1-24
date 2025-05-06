@@ -40,8 +40,12 @@ const validateUser = async (username?: string, password?: string, role?: string)
     if (password === undefined || password === null || password === '') {
         throw new Error('Password is required');
     }
-    if (password.length < 5) {
-        throw new Error('Username must be at least 5 characters long');
+    // Enforce password policy
+    const passwordPolicy = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$/;
+    if (!passwordPolicy.test(password)) {
+        throw new Error(
+            'Password must be at least 8 characters long and include at least one uppercase letter, one lowercase letter, and one number.'
+        );
     }
 
     // Validate role

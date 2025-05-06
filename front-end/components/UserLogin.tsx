@@ -33,26 +33,32 @@ const UserLogin = () => {
     const handleLogin = async (event: React.FormEvent) => {
         event.preventDefault();
         clearErrors();
+
         const validateBool = validate();
         if (!validateBool) {
             return;
         }
 
         try {
-            const data = await UserService.userLogin({ username, password });
-            if (data && data.token) {
-                document.cookie = `token=${data.token}; path=/;`;
+            const res = await UserService.userLogin({ username, password });
 
-                router.push('/');
+            // Wait for the server to set the HttpOnly cookie
+            if (res && res.role) {
+                setTimeout(() => {
+                    router.push('/'); // Give time for cookie to apply
+                }, 100);
             } else {
                 setLoginError('Username or password is wrong');
             }
         } catch (error: any) {
             console.error('Login error:', error.message);
+
             if (error.message === 'Username is incorrect.') {
                 setUsernameError('Username is incorrect');
             } else if (error.message === 'Password is incorrect.') {
                 setPasswordError('Password is incorrect');
+            } else if (error.message.includes('Too many login attempts')) {
+                setLoginError('Too many login attempts. Please try again after 15 minutes.');
             } else {
                 setLoginError('Username or password is wrong');
             }

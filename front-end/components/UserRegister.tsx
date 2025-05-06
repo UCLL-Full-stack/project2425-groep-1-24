@@ -18,10 +18,17 @@ const UserRegister = () => {
 
     const validate = async () => {
         let result = true;
+        const nameRegex = /^[a-zA-ZÀ-ÿ' -]{1,30}$/;
+        const usernameRegex = /^[a-zA-Z0-9_-]{3,20}$/;
 
         // Validation errors
         if (username.length === 0) {
             setUsernameError('Username is required!');
+            result = false;
+        } else if (!usernameRegex.test(username)) {
+            setUsernameError(
+                'Username must be 3–20 characters, using only letters, numbers, - or _'
+            );
             result = false;
         } else {
             try {
@@ -39,8 +46,13 @@ const UserRegister = () => {
             }
         }
 
+        const passwordPolicy = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$/;
+
         if (password.length === 0) {
             setPasswordError('Password is required!');
+            result = false;
+        } else if (!passwordPolicy.test(password)) {
+            setPasswordError('weak');
             result = false;
         } else {
             setPasswordError(''); // Clear the error if the field is valid
@@ -68,12 +80,18 @@ const UserRegister = () => {
         if (firstName.length === 0) {
             setFirstNameError('First name is required!');
             result = false;
+        } else if (!nameRegex.test(firstName)) {
+            setFirstNameError('Invalid first name. Use only letters and basic punctuation.');
+            result = false;
         } else {
             setFirstNameError('');
         }
 
         if (lastName.length === 0) {
             setLastNameError('Last name is required!');
+            result = false;
+        } else if (!nameRegex.test(lastName)) {
+            setLastNameError('Invalid last name. Use only letters and basic punctuation.');
             result = false;
         } else {
             setLastNameError('');
@@ -100,10 +118,10 @@ const UserRegister = () => {
         }
         try {
             await UserService.addUser({
-                username,
-                firstName,
-                lastName,
-                email,
+                username: username.trim(),
+                firstName: firstName.trim(),
+                lastName: lastName.trim(),
+                email: email.trim(),
                 password,
                 role: 'user',
             });
@@ -171,7 +189,18 @@ const UserRegister = () => {
                     className=""
                 />
             </label>
-            {passwordError && <p className="">{passwordError}</p>}
+            {passwordError && passwordError != 'weak' && <>{passwordError}</>}
+            {passwordError === 'weak' && (
+                <p className="text-xs">
+                    Password must be at least 8 characters long
+                    <br />
+                    and include at least one uppercase letter,
+                    <br />
+                    one lowercase letter,
+                    <br />
+                    and one number.
+                </p>
+            )}
 
             {loginError && <p className="">{loginError}</p>}
             <button type="submit" className="">

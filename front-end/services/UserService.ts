@@ -12,20 +12,75 @@ const getAll = () => {
 
 const userLogin = async (user: User) => {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-    const response = await fetch(apiUrl + '/users/login', {
+
+    try {
+        const response = await fetch(`${apiUrl}/users/login`, {
+            method: 'POST',
+            credentials: 'include',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(user),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.message || 'Login failed');
+        }
+
+        return data;
+    } catch (error: any) {
+        // Optional: distinguish between different error types here
+        throw new Error(error.message || 'Network or server error');
+    }
+};
+
+const getLoggedInUser = async (): Promise<User | null> => {
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+
+    try {
+        const response = await fetch(`${apiUrl}/users/me`, {
+            method: 'GET',
+            credentials: 'include', // sends cookies including HTTP-only ones
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+
+        if (response.status === 401) {
+            // Unauthorized: likely no token or invalid token
+            return null;
+        }
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || 'Failed to fetch logged-in user');
+        }
+
+        const user = await response.json();
+        return user; // { username, role }
+    } catch (error: any) {
+        console.error('Error fetching logged-in user:', error);
+        throw new Error(error.message || 'Network or server error');
+    }
+};
+
+const logout = async () => {
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+    const response = await fetch(`${apiUrl}/users/logout`, {
         method: 'POST',
+        credentials: 'include',
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify(user),
     });
+
     if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || 'login failed');
+        throw new Error(errorData.message || 'Failed to logout user');
     }
-
-    const lol = response.json();
-    return lol;
+    return response.json();
 };
 
 const getUserByEmail = async (email: string): Promise<User> => {
@@ -136,6 +191,8 @@ const UserService = {
     updateUser,
     getUserByEmail,
     getUserByUsername,
+    getLoggedInUser,
+    logout,
 };
 
 // Export the UserService object

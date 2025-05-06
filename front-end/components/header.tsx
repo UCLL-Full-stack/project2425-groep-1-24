@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react';
 import { jwtDecode, JwtPayload } from 'jwt-decode';
 import LogoutAlert from './logout';
 import { log } from 'console';
+import UserService from '@services/UserService';
 
 interface CustomJwtPayload extends JwtPayload {
     role?: 'user' | 'admin';
@@ -26,42 +27,40 @@ const Header: React.FC = () => {
         setShowLogoutPopup(false);
     };
 
-    const handleLogout = () => {
-        setLoggedInUser(null);
-        document.cookie = 'token=; Max-Age=0; path=/;';
-        setUserRole(undefined);
-        setShowLogoutPopup(false);
-        sessionStorage.clear();
-        router.push('/');
+    const handleLogout = async () => {
+        try {
+            const response = await UserService.logout();
+        } catch (error) {
+            console.error('Logout request failed:', error);
+        } finally {
+            setLoggedInUser(null);
+            setUserRole(undefined);
+            setShowLogoutPopup(false);
+            sessionStorage.clear();
+            router.push('/');
+        }
     };
 
     useEffect(() => {
-        // Function to read a specific cookie by name
-        const getCookie = (name: string) => {
-            const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
-            return match ? decodeURIComponent(match[2]) : null;
+        const fetchUser = async () => {
+            try {
+                const user = await UserService.getLoggedInUser();
+                if (user) {
+                    setLoggedInUser(user.username);
+                    setUserRole(user.role);
+                } else {
+                    // not logged in
+                    setLoggedInUser(null);
+                    setUserRole(undefined);
+                }
+            } catch (err: any) {
+                console.error('Error fetching logged-in user:', err.message);
+            }
         };
 
-        const token = getCookie('token');
-        if (!token) {
-            console.log('No token found');
-        } else {
-            try {
-                const decodedToken = jwtDecode<CustomJwtPayload>(token);
-                const username = decodedToken.username;
-                const role = decodedToken.role;
-                setUserRole(role); // Set the role in the state variable
-                if (username && token) {
-                    setLoggedInUser(username);
-                } else {
-                    setLoggedInUser(null);
-                }
-            } catch (error) {
-                console.error('Invalid token:', error);
-                router.push('/login'); // Redirect if token is invalid
-            }
-        }
+        fetchUser();
     }, [router]);
+
     return (
         <header className="bg-primary-yellow d-flex p-3">
             <Link href="/">

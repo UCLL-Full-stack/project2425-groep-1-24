@@ -7,18 +7,46 @@ import swaggerUi from 'swagger-ui-express';
 import userRouter from './controller/user.router';
 import paymentRouter from './controller/payment.router';
 import categoryRouter from './controller/category.router';
+import fs from 'fs';
+import https from 'https';
+import http from 'http';
+import helmet from 'helmet';
+import cookieParser from 'cookie-parser';
 
 const app = express();
+
+// Load TLS certificate and key
+const privateKey = fs.readFileSync('server.key', 'utf8');
+const certificate = fs.readFileSync('server.cert', 'utf8');
+const credentials = { key: privateKey, cert: certificate };
+
+// dotenv configuration
 dotenv.config();
-const port = process.env.APP_PORT || 3000;
 
-app.use(cors({ origin: 'http://localhost:8080' }));
+// Ports
+const port = 443;
+const httpPort = 80;
+
+// Security headers
+app.use(helmet());
+app.use(
+    cors({
+        origin: 'https://localhost:8080',
+        credentials: true, // ⬅️ Important to allow cookies
+        methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+        allowedHeaders: ['Content-Type', 'Authorization'],
+    })
+);
+
 app.use(bodyParser.json());
+app.use(cookieParser());
 
+// Routes
 app.use('/users', userRouter);
 app.use('/payments', paymentRouter);
 app.use('/categories', categoryRouter);
 
+// Health check
 app.get('/status', (req, res) => {
     res.json({ message: 'Back-end is running...' });
 });
@@ -38,6 +66,7 @@ const swaggerOpts = {
 const swaggerSpec = swaggerJSDoc(swaggerOpts);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
+// Error handling
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
     if (err.name === 'UnauthorizedError') {
         res.status(401).json({ status: 'unauthorized', message: err.message });
@@ -48,6 +77,17 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
     }
 });
 
-app.listen(port || 3000, () => {
-    console.log(`Back-end is running on port ${port}.`);
+// HTTP → HTTPS redirect
+http.createServer((req, res) => {
+    res.writeHead(301, {
+        Location: `https://${req.headers.host}${req.url}`,
+    });
+    res.end();
+}).listen(httpPort, () => {
+    console.log(`HTTP redirect server running on port ${httpPort}`);
+});
+
+// HTTPS server
+https.createServer(credentials, app).listen(port, () => {
+    console.log(`HTTPS server running on port ${port}`);
 });
