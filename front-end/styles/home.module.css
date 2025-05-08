@@ -4,8 +4,9 @@
     align-items: center;
     padding: 6rem;
     min-height: 100vh;
-    @apply bg-primary-yellow;
-    @apply font-sans font-extrabold;
+    background-color: #f5bd04;
+    font-family: 'Rubik Mono One', sans-serif;
+    font-weight: 800;
 }
 
 .main .content {
@@ -24,8 +25,9 @@
     align-items: center;
     padding: 3rem;
     min-height: 100vh;
-    @apply bg-primary-yellow;
-    @apply font-sans font-extrabold;
+    background-color: #f5bd04;
+    font-family: 'Rubik Mono One', sans-serif;
+    font-weight: 800;
     position: relative;
 }
 
@@ -55,24 +57,27 @@
 }
 
 .customDropdown {
-    @apply bg-primary-yellow;
+    background-color: #f5bd04;
     color: black;
 }
 
 .customDropdown option {
-    @apply font-sans font-extrabold;
+    font-family: 'Rubik Mono One', sans-serif;
+    font-weight: 800;
 }
 
 .main h1 {
     display: inline-block;
-    @apply font-sans font-extrabold;
+    font-family: 'Rubik Mono One', sans-serif;
+    font-weight: 800;
     color: black;
     text-align: center;
 }
 
 .chart h1 {
     display: inline-block;
-    @apply font-sans font-extrabold;
+    font-family: 'Rubik Mono One', sans-serif;
+    font-weight: 800;
     color: black;
     text-align: center;
 }
@@ -92,7 +97,8 @@
     position: relative;
     color: black;
     text-decoration: none;
-    @apply font-sans font-extrabold;
+    font-family: 'Rubik Mono One', sans-serif;
+    font-weight: 800;
     margin-left: 1rem;
     margin-right: 1rem;
 }
@@ -150,8 +156,8 @@
 }
 
 .customtextbox {
-    @apply bg-primary-yellow;
-    @apply text-black;
+    background-color: #f5bd04;
+    color: black;
     padding: 0.1rem;
     padding-left: 0.5rem;
     border-radius: 5px;
@@ -167,21 +173,22 @@
     flex-direction: column;
     gap: 1rem;
     background-color: black;
+    color: #f5bd04;
     padding: 1rem;
     border-radius: 10px;
     box-shadow: 4px 4px 4px rgba(0, 0, 0, 0.3);
 }
 
 .form label {
-    @apply text-primary-yellow;
+    color: #f5bd04;
     display: flex;
     flex-direction: column;
 }
 
 .form input,
 .form select {
-    @apply bg-primary-yellow;
-    @apply text-black;
+    background-color: #f5bd04;
+    color: black;
 
     padding: 0.1rem;
     padding-left: 0.5rem;
@@ -203,13 +210,15 @@
 }
 
 .form option {
-    @apply font-sans font-extrabold;
+    font-family: 'Rubik Mono One', sans-serif;
+    font-weight: 800;
 }
 
 .form button {
-    @apply bg-primary-yellow;
-    @apply text-black;
-    @apply font-sans font-extrabold;
+    background-color: #f5bd04;
+    color: black;
+    font-family: 'Rubik Mono One', sans-serif;
+    font-weight: 800;
     padding: 0.5rem;
     border-radius: 5px;
     cursor: pointer;
@@ -219,9 +228,10 @@
 }
 
 .addCategoryButton {
-    @apply bg-primary-yellow;
-    @apply text-black;
-    @apply font-sans font-extrabold;
+    background-color: #f5bd04;
+    color: black;
+    font-family: 'Rubik Mono One', sans-serif;
+    font-weight: 800;
     padding: 0.5rem;
     border-radius: 5px;
     cursor: pointer;
@@ -243,30 +253,32 @@
     padding: 3rem;
     border-radius: 10px;
     box-shadow: 4px 4px 4px rgba(0, 0, 0, 0.3);
-    @apply text-primary-yellow;
+    color: #f5bd04;
 }
 
 .login h6 {
-    @apply text-primary-yellow;
-    @apply font-sans font-extrabold;
+    color: #f5bd04;
+    font-family: 'Rubik Mono One', sans-serif;
+    font-weight: 800;
     text-align: center;
 }
 
 .login h1 {
-    @apply text-primary-yellow;
-    @apply font-sans font-extrabold;
+    color: #f5bd04;
+    font-family: 'Rubik Mono One', sans-serif;
+    font-weight: 800;
     text-align: center;
 }
 
 .login label {
-    @apply text-primary-yellow;
+    color: #f5bd04;
     display: flex;
     flex-direction: column;
 }
 
 .login input {
-    @apply bg-primary-yellow;
-    @apply text-black;
+    background-color: #f5bd04;
+    color: black;
 
     padding: 0.1rem;
     padding-left: 0.5rem;
@@ -279,9 +291,10 @@
 }
 
 .login button {
-    @apply bg-primary-yellow;
-    @apply text-black;
-    @apply font-sans font-extrabold;
+    background-color: #f5bd04;
+    color: black;
+    font-family: 'Rubik Mono One', sans-serif;
+    font-weight: 800;
     padding: 0.5rem;
     border-radius: 5px;
     cursor: pointer;
@@ -310,7 +323,7 @@
 
 /* Centered alert box */
 .logoutAlert {
-    @apply bg-primary-yellow; /* Alert box background */
+    background-color: #f5bd04; /* Alert box background */
     padding: 20px;
     border-radius: 10px;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* Subtle shadow for depth */
@@ -324,7 +337,7 @@
 }
 
 .addPaymentPopup {
-    @apply bg-primary-yellow; /* Alert box background */
+    background-color: #f5bd04; /* Alert box background */
     padding: 20px;
     border-radius: 10px;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* Subtle shadow for depth */
@@ -347,7 +360,7 @@
     margin: 1rem;
     background-color: black;
     border-radius: 10px;
-    @apply text-primary-yellow;
+    color: #f5bd04;
 }
 
 .logoutAlert .confirm:hover {
@@ -364,7 +377,7 @@
     margin: 1rem;
     background-color: black;
     border-radius: 10px;
-    @apply text-primary-yellow;
+    color: #f5bd04;
 }
 
 .addPaymentPopup .confirm:hover {
@@ -385,7 +398,7 @@
     justify-content: center;
 }
 .table th {
-    @apply text-primary-yellow;
+    color: #f5bd04;
     border: 1px solid black;
     padding: 8px;
     text-align: left;

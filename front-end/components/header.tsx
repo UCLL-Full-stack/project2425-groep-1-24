@@ -62,12 +62,12 @@ const Header: React.FC = () => {
     }, [router]);
 
     return (
-        <header className="bg-primary-yellow d-flex p-3">
+        <header className="d-flex p-3" style={{ backgroundColor: '#F5BD04' }}>
             <Link href="/">
                 <Image
                     src="/images/budgetwise-logo.png"
                     alt="BugetWise Logo"
-                    className="ml-10 pb-2"
+                    className="ml-[2.5rem] pb-2"
                     width={70}
                     height={70}
                     style={{ filter: 'grayscale(100%)' }}
@@ -75,7 +75,7 @@ const Header: React.FC = () => {
             </Link>
             <Link
                 href="/"
-                className="fs-3 ml-3 text-black d-flex justify-content-left text-decoration-none align-items-center font-sans font-extrabold"
+                className="fs-3 ml-[0.75rem] text-black flex justify-content-left text-decoration-none align-items-center font-[Rubik Mono One] font-[800] "
             >
                 BUDGETWISE
             </Link>
