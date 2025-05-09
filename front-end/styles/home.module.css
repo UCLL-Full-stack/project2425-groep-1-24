@@ -409,3 +409,49 @@
     padding: 8px;
     text-align: left;
 }
+
+.profile {
+    max-width: 600px;
+    margin: 2rem auto;
+    padding: 2rem;
+    border-radius: 0.5rem;
+    font-family: 'Rubik Mono One', sans-serif;
+    font-weight: 800;
+    display: flex;
+    flex-direction: column;
+    background-color: black;
+    color: #f5bd04;
+}
+
+.profile h1 {
+    font-family: 'Rubik Mono One', sans-serif;
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    color: #f5bd04;
+    text-align: center;
+}
+
+.profile h2 {
+    font-size: 1.1rem;
+    font-weight: 500;
+    margin: 0.75rem 0;
+}
+
+.profile button {
+    background-color: #f5bd04;
+    color: black;
+    font-family: 'Rubik Mono One', sans-serif;
+    font-weight: 800;
+    padding: 0.5rem;
+    border-radius: 5px;
+    cursor: pointer;
+    max-width: 100%;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+}
+
+.profile button:hover {
+    box-shadow: inset 2px 2px 5px rgba(0, 0, 0, 0.5);
+    transition: box-shadow 0.2s ease-in-out;
+}

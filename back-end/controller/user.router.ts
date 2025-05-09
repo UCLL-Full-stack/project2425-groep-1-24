@@ -11,6 +11,7 @@ if (!jwtSecret) {
     throw new Error('JWT_SECRET is not defined. Please set it in your environment variables.');
 }
 import jwt, { JwtPayload } from 'jsonwebtoken';
+import logger from '../util/logger';
 
 interface CustomJwtPayload extends JwtPayload {
     username: string;
@@ -33,7 +34,7 @@ const userRouter = express.Router();
 
 userRouter.get('/me', (req, res) => {
     const token = req.cookies.token;
-
+    logger.info('Authorizing Token');
     if (!token) {
         return res.status(401).json({ message: 'Unauthorized' });
     }
@@ -42,6 +43,7 @@ userRouter.get('/me', (req, res) => {
         const decoded = jwt.verify(token, jwtSecret) as CustomJwtPayload;
         res.json({ username: decoded.username, role: decoded.role });
     } catch (err) {
+        logger.error('Token verification failed');
         res.status(401).json({ message: 'Invalid token' });
     }
 });
@@ -89,10 +91,12 @@ userRouter.get('/me', (req, res) => {
  */
 
 userRouter.get('/', async (req: Request, res: Response, next: NextFunction) => {
+    logger.info('Fetching all users');
     try {
         const users = await userService.getAllUsers();
         res.status(200).json(users);
     } catch (error) {
+        logger.error('Error fetching users:', error);
         next(error);
     }
 });
@@ -138,6 +142,7 @@ userRouter.get('/', async (req: Request, res: Response, next: NextFunction) => {
 userRouter.get('/getUserByEmail', async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { email } = req.query as { email: string };
+        logger.info('Fetching user by email');
         try {
             const endUser = await userService.getUserByEmail(email);
             res.status(200).json(endUser);
@@ -145,6 +150,7 @@ userRouter.get('/getUserByEmail', async (req: Request, res: Response, next: Next
             next(error);
         }
     } catch (error) {
+        logger.error('Error fetching user by email:', error);
         next(error);
     }
 });
@@ -190,6 +196,7 @@ userRouter.get('/getUserByEmail', async (req: Request, res: Response, next: Next
 userRouter.get('/getUserByUsername', async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { username } = req.query as { username: string };
+        logger.info('Fetching user by username');
         try {
             const endUser = await userService.getUserByUsername(username);
             res.status(200).json(endUser);
@@ -197,6 +204,7 @@ userRouter.get('/getUserByUsername', async (req: Request, res: Response, next: N
             next(error);
         }
     } catch (error) {
+        logger.error('Error fetching user by username:', error);
         next(error);
     }
 });
@@ -241,10 +249,12 @@ userRouter.get('/getUserByUsername', async (req: Request, res: Response, next: N
 
 userRouter.post('/login', loginLimiter, async (req: Request, res: Response, next: NextFunction) => {
     try {
+        logger.info('User login attempt');
         const user = <UserInput>req.body;
         const role = await userService.getUserRoleByUsername(user.username);
         const token = await userService.loginUser(user);
         const response = { token: token, role: role };
+
         res.cookie('token', token, {
             httpOnly: true,
             secure: true, // works only over HTTPS
@@ -253,11 +263,13 @@ userRouter.post('/login', loginLimiter, async (req: Request, res: Response, next
         });
         res.status(200).json(response);
     } catch (error) {
+        logger.error('Login error:', error);
         next(error);
     }
 });
 
 userRouter.post('/logout', (req, res) => {
+    logger.info('User logged out');
     res.clearCookie('token', {
         httpOnly: true,
         secure: true,
@@ -328,11 +340,13 @@ userRouter.post('/logout', (req, res) => {
  */
 
 userRouter.post('/', async (req: Request, res: Response) => {
+    logger.info('Creating new user');
     try {
         const user = <UserInput>req.body;
         const result = await userService.createUser(user);
         res.status(200).json(result);
     } catch (error: any) {
+        logger.error('Error creating user:', error);
         res.status(400).json({
             status: 'error',
             errorMessage: error.message || 'An error occurred',
@@ -359,11 +373,13 @@ userRouter.post('/', async (req: Request, res: Response) => {
  *         description: Internal server error
  */
 userRouter.delete('/delete', async (req: Request, res: Response, next: NextFunction) => {
+    logger.info('Deleting user');
     try {
         const { username } = req.query as { username: string };
         const response = await userService.deleteUser(username);
         res.status(200).json(response);
     } catch (error) {
+        logger.error('Error deleting user:', error);
         next(error);
     }
 });
@@ -426,12 +442,51 @@ userRouter.delete('/delete', async (req: Request, res: Response, next: NextFunct
  */
 
 userRouter.put('/update', async (req: Request, res: Response) => {
+    logger.info('Updating user');
     try {
         const { username, ...updates } = req.body as UserInput;
         const updatedUser = await userService.updateUser(username, updates as Partial<User>);
         res.status(200).json(updatedUser);
     } catch (error: any) {
+        logger.error('Error updating user:', error);
         res.status(400).json({ status: 'error', errorMessage: error.message });
+    }
+});
+
+userRouter.put('/changePassword', async (req: Request, res: Response, next: NextFunction) => {
+    logger.info('Changing password for user');
+    try {
+        const { username, currentPassword, newPassword } = req.body;
+        const message = await userService.changePassword(username, currentPassword, newPassword);
+        res.status(200).json({ message });
+    } catch (error) {
+        logger.error('Error changing password:', error);
+        next(error);
+    }
+});
+
+userRouter.post('/forgot-password', async (req, res, next) => {
+    logger.info('Password reset request for email');
+    const { email } = req.body;
+    try {
+        const result = await userService.sendResetEmail(email);
+        res.status(200).json({ message: result });
+    } catch (err) {
+        logger.error('Error sending reset email:', err);
+        next(err);
+    }
+});
+
+userRouter.post('/reset-password', async (req, res, next) => {
+    logger.info('Resetting password for token');
+    const { token, newPassword } = req.body;
+
+    try {
+        const result = await userService.resetPassword(token, newPassword);
+        res.status(200).json({ message: result });
+    } catch (err: any) {
+        logger.error('Error resetting password:', err);
+        next(err);
     }
 });
 

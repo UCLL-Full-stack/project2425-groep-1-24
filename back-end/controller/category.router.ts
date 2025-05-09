@@ -1,5 +1,6 @@
 import express, { NextFunction, Request, Response } from 'express';
 import categoryService from '../service/category.service';
+import logger from '../util/logger';
 
 const categoryRouter = express.Router();
 
@@ -71,15 +72,18 @@ const categoryRouter = express.Router();
  */
 
 categoryRouter.get('/', async (req: Request, res: Response, next: NextFunction) => {
+    logger.info('Fetching all categories');
     try {
         const categories = await categoryService.getAllCategories();
         res.status(200).json(categories);
     } catch (error) {
+        logger.error('Error fetching categories', error);
         next(error);
     }
 });
 
 categoryRouter.post('/createCategory', async (req: Request, res: Response, next: NextFunction) => {
+    logger.info('Creating a new category');
     try {
         const { name } = req.body;
         if (!name) {
@@ -88,6 +92,7 @@ categoryRouter.post('/createCategory', async (req: Request, res: Response, next:
         const category = await categoryService.createCategory(name);
         res.status(201).json(category);
     } catch (error) {
+        logger.error('Error creating category', error);
         next(error);
     }
 });

@@ -66,8 +66,22 @@ const createUser = async (
     }
 };
 
+const updatePassword = async (username: string, hashedPassword: string) => {
+    try {
+        return await database.user.update({
+            where: { username: username },
+            data: { password: hashedPassword },
+        });
+    } catch (error: any) {
+        throw new Error(`Error updating password: ${error.message}`);
+    }
+};
+
 const deleteUser = async (username: string): Promise<string> => {
     try {
+        const user = await database.user.findUnique({ where: { username } });
+        if (!user) throw new Error('User not found');
+        await database.payment.deleteMany({ where: { userId: user.id } });
         await database.user.delete({
             where: { username: username },
         });
@@ -98,4 +112,5 @@ export default {
     createUser,
     deleteUser,
     updateUser,
+    updatePassword,
 };

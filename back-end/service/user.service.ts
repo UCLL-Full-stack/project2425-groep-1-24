@@ -4,6 +4,7 @@ import { UserInput } from '../types';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
+import mailer from '../util/mailer';
 
 // Load environment variables
 dotenv.config();
@@ -52,6 +53,27 @@ const validateUser = async (username?: string, password?: string, role?: string)
     if (role === undefined || role === null || role === '') {
         throw new Error('Role is required');
     }
+};
+
+const changePassword = async (
+    username: string,
+    currentPassword: string,
+    newPassword: string
+): Promise<string> => {
+    const user = await userDB.getUserByUsername(username);
+    if (!user) {
+        throw new Error('User not found');
+    }
+
+    const isValidPassword = await bcrypt.compare(currentPassword, user.getPassword());
+    if (!isValidPassword) {
+        throw new Error('Current password is incorrect');
+    }
+
+    const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+    await userDB.updatePassword(username, hashedNewPassword);
+
+    return 'Password updated successfully';
 };
 
 const getAllUsers = async (): Promise<User[]> => {
@@ -117,6 +139,13 @@ const generateJwtToken = (username: string, role: string): string => {
         console.log('Error generating JWT token' + error);
         throw new Error('Error generating JWT token, see server log for details.');
     }
+};
+
+const generateResetToken = (username: string): string => {
+    return jwt.sign({ username }, jwtSecret, {
+        expiresIn: '15m',
+        issuer: 'yourapp',
+    });
 };
 
 const createUser = async ({
@@ -204,6 +233,52 @@ const updateUser = async (username: string, updates: Partial<User>): Promise<str
     }
 };
 
+const sendResetEmail = async (email: string): Promise<string> => {
+    const user = await userDB.getUserByEmail(email);
+    if (!user) throw new Error('User with this email does not exist.');
+
+    const token = generateResetToken(user.getUsername()); // similar to login token
+    const resetLink = `${process.env.FRONTEND_URL}/reset-password?token=${token}`;
+
+    await mailer.sendMail({
+        to: email,
+        subject: 'Password Reset Request',
+        text: `Click this link to reset your password: ${resetLink}`,
+    });
+
+    return 'Reset email sent';
+};
+
+const resetPassword = async (token: string, newPassword: string): Promise<string> => {
+    if (!token || !newPassword) {
+        throw new Error('Token and new password are required');
+    }
+
+    // Validate password strength
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$/;
+    if (!passwordRegex.test(newPassword)) {
+        throw new Error(
+            'Password must be at least 8 characters long and include at least one lowercase letter, one uppercase letter, and one number.'
+        );
+    }
+
+    let decoded;
+    try {
+        decoded = jwt.verify(token, process.env.JWT_SECRET!) as { username: string };
+    } catch (err) {
+        throw new Error('Invalid or expired token');
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    const updated = await userDB.updatePassword(decoded.username, hashedPassword);
+
+    if (!updated) {
+        throw new Error('Failed to update password. User not found.');
+    }
+
+    return 'Password reset successfully';
+};
+
 export default {
     getAllUsers,
     getUserByEmail,
@@ -213,4 +288,7 @@ export default {
     createUser,
     deleteUser,
     updateUser,
+    changePassword,
+    sendResetEmail,
+    resetPassword,
 };

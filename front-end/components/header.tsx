@@ -3,10 +3,12 @@ import Image from 'next/image';
 import styles from '@styles/home.module.css';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
-import { jwtDecode, JwtPayload } from 'jwt-decode';
+import { JwtPayload } from 'jwt-decode';
 import LogoutAlert from './logout';
-import { log } from 'console';
 import UserService from '@services/UserService';
+import { FaUserAlt } from 'react-icons/fa';
+
+const FaUserAltIcon = FaUserAlt as React.FC<React.ComponentProps<'svg'>>;
 
 interface CustomJwtPayload extends JwtPayload {
     role?: 'user' | 'admin';
@@ -118,6 +120,14 @@ const Header: React.FC = () => {
                         >
                             LOGOUT
                         </div>
+                    )}
+                    {loggedInUser && (
+                        <Link
+                            href="/profile"
+                            className={router.pathname === '/profile' ? styles.active : ''}
+                        >
+                            <FaUserAltIcon className="text-xl text-gray-900 cursor-pointer" />
+                        </Link>
                     )}
                     {showLogoutPopup && (
                         <LogoutAlert onCancel={handleCancelClick} onConfirm={handleLogout} />

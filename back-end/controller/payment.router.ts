@@ -1,6 +1,7 @@
 import express, { NextFunction, Request, Response } from 'express';
 import paymentService from '../service/payment.service';
 import { PaymentInput } from '../types';
+import logger from '../util/logger';
 
 const paymentRouter = express.Router();
 
@@ -89,20 +90,24 @@ const paymentRouter = express.Router();
  */
 
 paymentRouter.get('/', async (req: Request, res: Response, next: NextFunction) => {
+    logger.info('Fetching all payments');
     try {
         const payments = await paymentService.getAllPayments();
         res.status(200).json(payments);
     } catch (error) {
+        logger.error('Error fetching payments: ', error);
         next(error);
     }
 });
 
 paymentRouter.post('/createPayment', async (req: Request, res: Response, next: NextFunction) => {
+    logger.info('Creating a new payment');
     try {
         const payment = <PaymentInput>req.body;
         const createdPayment = await paymentService.createPayment(payment);
         res.status(201).json(createdPayment);
     } catch (error) {
+        logger.error('Error creating payment: ', error);
         console.log(error);
         next(error);
     }

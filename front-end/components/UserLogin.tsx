@@ -2,6 +2,7 @@ import UserService from '@services/UserService';
 import { useRouter } from 'next/router';
 import React, { useState } from 'react';
 import styles from '@styles/home.module.css';
+import ForgotPasswordPopup from './ForgotPasswordPopup';
 
 const UserLogin = () => {
     const [username, setUsername] = useState('');
@@ -9,6 +10,8 @@ const UserLogin = () => {
     const [usernameError, setUsernameError] = useState('');
     const [passwordError, setPasswordError] = useState('');
     const [loginError, setLoginError] = useState('');
+    const [showForgotPassword, setShowForgotPassword] = useState(false);
+
     const router = useRouter();
 
     const validate = () => {
@@ -96,10 +99,24 @@ const UserLogin = () => {
             <button type="submit" className="">
                 Login
             </button>
+            <h6
+                className={styles.forgot}
+                onClick={() => setShowForgotPassword(true)}
+                style={{ cursor: 'pointer', color: 'blue', textDecoration: 'underline' }}
+            >
+                Forgot Password?
+            </h6>
             <h6>
                 Don't have an account? &nbsp;
                 <a href="/register">Sign up</a>
             </h6>
+            {/* Forgot Password Modal */}
+            {showForgotPassword && (
+                <ForgotPasswordPopup
+                    isOpen={showForgotPassword}
+                    onClose={() => setShowForgotPassword(false)}
+                />
+            )}
         </form>
     );
 };

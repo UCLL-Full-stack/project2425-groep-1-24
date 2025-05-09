@@ -12,6 +12,7 @@ import https from 'https';
 import http from 'http';
 import helmet from 'helmet';
 import cookieParser from 'cookie-parser';
+import HTTPlogger from './util/HTTPlogger';
 
 const app = express();
 
@@ -37,6 +38,9 @@ app.use(
         allowedHeaders: ['Content-Type', 'Authorization'],
     })
 );
+
+// Middleware
+app.use(HTTPlogger);
 
 app.use(bodyParser.json());
 app.use(cookieParser());

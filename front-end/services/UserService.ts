@@ -168,7 +168,7 @@ const updateUser = async (username: string, updates: Partial<User>) => {
 
 const deleteUser = async (username: string) => {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-    const response = await fetch(`${apiUrl}/users/username?username=${username}`, {
+    const response = await fetch(`${apiUrl}/users/delete?username=${username}`, {
         method: 'DELETE',
         headers: {
             'Content-Type': 'application/json',
@@ -182,6 +182,56 @@ const deleteUser = async (username: string) => {
     return response;
 };
 
+const changePassword = async (username: string, currentPassword: string, newPassword: string) => {
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+    const response = await fetch(`${apiUrl}/users/changePassword`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ username, currentPassword, newPassword }),
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to change password');
+    }
+    return response.json();
+};
+
+const forgotPassword = async (email: string) => {
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+    const response = await fetch(`${apiUrl}/users/forgot-password`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email }),
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to send reset email');
+    }
+    return response.json();
+};
+
+const resetPassword = async (token: string, newPassword: string) => {
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+    const response = await fetch(`${apiUrl}/users/reset-password`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ token, newPassword }),
+    });
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to reset password');
+    }
+    return response.json();
+};
+
 // Variable UserService is an object with properties
 const UserService = {
     getAll,
@@ -193,6 +243,9 @@ const UserService = {
     getUserByUsername,
     getLoggedInUser,
     logout,
+    changePassword,
+    forgotPassword,
+    resetPassword,
 };
 
 // Export the UserService object
